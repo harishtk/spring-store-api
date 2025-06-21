@@ -6,6 +6,7 @@ import com.codewithmosh.store.dto.request.UpdateUserRequestDto;
 import com.codewithmosh.store.dto.response.UserResponseDto;
 import com.codewithmosh.store.mappers.UserMapper;
 import com.codewithmosh.store.repositories.UserRepository;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -52,9 +54,15 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDto> createUser(
-            @RequestBody CreateUserRequestDto request,
+    public ResponseEntity<?> createUser(
+            @Valid @RequestBody CreateUserRequestDto request,
             UriComponentsBuilder uriBuilder) {
+
+        if (userRepository.existsUsersByEmail(request.getEmail())) {
+            return ResponseEntity.status(HttpStatus.PRECONDITION_REQUIRED).body(
+                    Map.of("error", "Email is already in use!")
+            );
+        }
 
         var user = userMapper.toEntity(request);
 
@@ -66,7 +74,7 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> updateUser(
             @PathVariable("id") Long id,
-            @RequestBody UpdateUserRequestDto request) {
+            @Valid @RequestBody UpdateUserRequestDto request) {
 
         var user = userRepository.findById(id);
         if (user.isEmpty()) {
@@ -91,7 +99,7 @@ public class UserController {
     @PostMapping("/{id}/change-password")
     public ResponseEntity<Void> changePassword(
             @PathVariable("id") Long id,
-            @RequestBody UpdatePasswordRequestDto request) {
+            @Valid @RequestBody UpdatePasswordRequestDto request) {
         var user = userRepository.findById(id);
         if (user.isEmpty()) {
             return ResponseEntity.notFound().build();
