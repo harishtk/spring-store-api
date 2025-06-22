@@ -1,5 +1,6 @@
 package com.codewithmosh.store.entities;
 
+import com.codewithmosh.store.exceptions.ProductNotFoundException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,7 +23,7 @@ public class Cart {
     @Column(name = "date_created", insertable = false, updatable = false)
     private LocalDate dateCreated;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<CartItem> items = new HashSet<>();
 
     public BigDecimal getTotalPrice() {
@@ -31,4 +32,40 @@ public class Cart {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    public CartItem getItem(Long productId) {
+        return items.stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public CartItem addProduct(Product product) {
+        var cartItem = getItem(product.getId());
+        if (cartItem != null) {
+            cartItem.setQuantity(cartItem.getQuantity() + 1);
+        } else {
+            cartItem = CartItem.builder()
+                    .product(product)
+                    .quantity(1)
+                    .cart(this)
+                    .build();
+           items.add(cartItem);
+        }
+
+        return cartItem;
+    }
+
+    public void removeProduct(Long productId) throws ProductNotFoundException {
+        var cartItem = getItem(productId);
+        if (cartItem != null) {
+            items.remove(cartItem);
+            cartItem.setCart(null);
+        } else {
+            throw new ProductNotFoundException("Product not found in cart");
+        }
+    }
+
+    public void clear() {
+        items.clear();
+    }
 }
