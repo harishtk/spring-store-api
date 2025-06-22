@@ -2,11 +2,10 @@ package com.codewithmosh.store.controllers;
 
 import com.codewithmosh.store.dto.ProductDto;
 import com.codewithmosh.store.entities.Product;
-import com.codewithmosh.store.mappers.ProductMappper;
+import com.codewithmosh.store.mappers.ProductMapper;
 import com.codewithmosh.store.repositories.CategoryRepository;
 import com.codewithmosh.store.repositories.ProductRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -19,7 +18,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductRepository productRepository;
-    private final ProductMappper productMappper;
+    private final ProductMapper productMapper;
     private final CategoryRepository categoryRepository;
 
     @GetMapping
@@ -35,7 +34,7 @@ public class ProductController {
 
         return ResponseEntity.ok(
                 products.stream()
-                        .map(productMappper::toDto)
+                        .map(productMapper::toDto)
                         .toList()
         );
     }
@@ -44,7 +43,7 @@ public class ProductController {
     public ResponseEntity<ProductDto> getProductById(@PathVariable("id") Long id) {
         var product = productRepository.findById(id);
         if (product.isPresent()) {
-            return ResponseEntity.ok(productMappper.toDto(product.orElseThrow()));
+            return ResponseEntity.ok(productMapper.toDto(product.orElseThrow()));
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -59,7 +58,7 @@ public class ProductController {
             return ResponseEntity.notFound().build();
         }
 
-        var product = productMappper.toEntity(request);
+        var product = productMapper.toEntity(request);
         productRepository.save(product);
         request.setId(product.getId());
 
@@ -84,7 +83,7 @@ public class ProductController {
 
         System.out.println("Update product request: " + request.toString() + request.getCategoryId());
 
-        productMappper.update(request, product);
+        productMapper.update(request, product);
         product.setCategory(category);
         productRepository.save(product);
         request.setId(product.getId());

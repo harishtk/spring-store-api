@@ -19,6 +19,6 @@ public class LowercaseValidator implements ConstraintValidator<Lowercase, String
      */
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        return value == null || value.matches("^[a-z]*$");
+        return value == null || value.equals(value.toLowerCase());
     }
 }
