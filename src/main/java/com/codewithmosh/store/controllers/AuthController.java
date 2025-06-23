@@ -5,8 +5,10 @@ import com.codewithmosh.store.dto.request.LoginRequestDto;
 import com.codewithmosh.store.dto.response.LoginResponseDto;
 import com.codewithmosh.store.dto.response.UserResponseDto;
 import com.codewithmosh.store.entities.User;
+import com.codewithmosh.store.exceptions.UserNotFoundException;
 import com.codewithmosh.store.mappers.UserMapper;
 import com.codewithmosh.store.repositories.UserRepository;
+import com.codewithmosh.store.services.AuthService;
 import com.codewithmosh.store.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -16,9 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
@@ -31,6 +30,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final JwtConfig jwtConfig;
+    private final AuthService authService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(
@@ -80,22 +80,17 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponseDto> me() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        var userId = (Long) auth.getPrincipal();
-        var user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            return ResponseEntity.notFound().build();
-        }
-
+        var user = authService.getCurrentUser();
         return ResponseEntity.ok(userMapper.toDto(user));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Void> handleBadCredentialsException() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Void> handleUserNotFoundException() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }
