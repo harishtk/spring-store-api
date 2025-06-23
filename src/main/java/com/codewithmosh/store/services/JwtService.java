@@ -1,38 +1,39 @@
 package com.codewithmosh.store.services;
 
+import com.codewithmosh.store.config.JwtConfig;
 import com.codewithmosh.store.entities.User;
-import com.codewithmosh.store.exceptions.UserNotFoundException;
-import com.codewithmosh.store.repositories.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@AllArgsConstructor
 @Service
 public class JwtService {
 
-    private final SecretKey secretKey;
+    private final JwtConfig jwtConfig;
 
-    public JwtService(@Value("${spring.jwt.secret}") String secret, UserRepository userRepository) {
-        secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+    public String generateAccessToken(User user) {
+        return generateToken(user, jwtConfig.getAccessTokenExpiration());
     }
 
-    public String generateToken(User user) {
-        var claims = Map.of("email", user.getEmail(), "name", user.getName());
+    public String generateRefreshToken(User user) {
+        return generateToken(user, jwtConfig.getRefreshTokenExpiration());
+    }
 
+    private String generateToken(User user, Long expiration) {
+        var claims = Map.of("email", user.getEmail(), "name", user.getName());
         return Jwts.builder()
                 .subject(user.getId().toString())
                 .claims(claims)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1)))
-                .signWith(secretKey)
+                .expiration(new Date(System.currentTimeMillis() + 1000 * expiration))
+                .signWith(jwtConfig.getSecretKey())
                 .compact();
     }
 
@@ -51,7 +52,7 @@ public class JwtService {
 
     private Claims getClaims(String token) {
         return Jwts.parser()
-                .verifyWith(secretKey)
+                .verifyWith(jwtConfig.getSecretKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
