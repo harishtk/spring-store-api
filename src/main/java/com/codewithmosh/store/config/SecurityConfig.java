@@ -18,13 +18,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.MediaType;
+import lombok.extern.slf4j.Slf4j;
 
 @AllArgsConstructor
 @Configuration
 @EnableWebSecurity
+@Slf4j
 public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -50,20 +51,32 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterRequests(HttpSecurity http) throws Exception {
         http
-                .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(request -> request
-                        .requestMatchers("/carts/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/auth/refresh").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(c ->
-                        c.authenticationEntryPoint(
-                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
+            .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .csrf(AbstractHttpConfigurer::disable)
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        .authorizeHttpRequests(request -> request
+            .requestMatchers("/carts/**").permitAll()
+            .requestMatchers(HttpMethod.POST, "/users").permitAll()
+            .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+            .requestMatchers(HttpMethod.GET, "/auth/refresh").permitAll()
+            .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN") // Change this line
+            .anyRequest().authenticated()
+        )
+        .exceptionHandling(c -> {
+            c.authenticationEntryPoint((request, response, ex) -> {
+                log.error("Authentication failure", ex);
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.getWriter().write("{\"error\": \"Unauthorized\"}");
+            });
+            c.accessDeniedHandler((request, response, ex) -> {
+                log.error("Access denied", ex);
+                response.setStatus(HttpStatus.FORBIDDEN.value());
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.getWriter().write("{\"error\": \"Access Denied\"}");
+            });
+        });
 
-        return http.build();
-    }
+    return http.build();
+}
 }

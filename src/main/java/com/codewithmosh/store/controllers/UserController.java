@@ -4,6 +4,7 @@ import com.codewithmosh.store.dto.request.CreateUserRequestDto;
 import com.codewithmosh.store.dto.request.UpdatePasswordRequestDto;
 import com.codewithmosh.store.dto.request.UpdateUserRequestDto;
 import com.codewithmosh.store.dto.response.UserResponseDto;
+import com.codewithmosh.store.models.Role;
 import com.codewithmosh.store.mappers.UserMapper;
 import com.codewithmosh.store.repositories.UserRepository;
 import jakarta.validation.Valid;
@@ -68,6 +69,7 @@ public class UserController {
 
         var user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(Role.USER);
 
         user = userRepository.save(user);
         var location = uriBuilder.path("/users/{id}").buildAndExpand(user.getId()).toUri();

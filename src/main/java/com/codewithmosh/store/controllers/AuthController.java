@@ -16,10 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.concurrent.TimeUnit;
 
 @AllArgsConstructor
 @RestController
@@ -52,30 +52,30 @@ public class AuthController {
     public ResponseEntity<LoginResponseDto> refresh(
             @CookieValue("refreshToken") String refreshToken
     ) {
-        if (!jwtService.validateToken(refreshToken)) {
+        var jwt = jwtService.parse(refreshToken);
+        if (jwt == null || jwt.isExpired()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        var userId = jwtService.getUserIdFromToken(refreshToken);
-        var user = userRepository.findById(userId).orElseThrow();
+        var user = userRepository.findById(jwt.getUserId()).orElseThrow();
 
         return getLoginResponseDtoResponseEntity(user);
     }
 
     private ResponseEntity<LoginResponseDto> getLoginResponseDtoResponseEntity(User user) {
-        final String token = jwtService.generateAccessToken(user);
-        final String newRefreshToken = jwtService.generateRefreshToken(user);
+        final var token = jwtService.generateAccessToken(user);
+        final var newRefreshToken = jwtService.generateRefreshToken(user);
 
-        var cookie = ResponseCookie.from("refreshToken", newRefreshToken)
+        var cookie = ResponseCookie.from("refreshToken", newRefreshToken.toString())
                 .httpOnly(true)
                 .secure(true)
                 .path("/auth")
-                .maxAge(TimeUnit.MILLISECONDS.toSeconds(jwtConfig.getRefreshTokenExpiration()))
+                .maxAge(jwtConfig.getRefreshTokenExpiration())
                 .build();
 
         return ResponseEntity.ok()
                 .header("Set-Cookie", cookie.toString())
-                .body(new LoginResponseDto(token));
+                .body(new LoginResponseDto(token.toString()));
     }
 
     @GetMapping("/me")
@@ -98,5 +98,4 @@ public class AuthController {
     public ResponseEntity<Void> handleBadCredentialsException() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
-
 }
