@@ -1,10 +1,10 @@
 package com.codewithmosh.store.feature.authentication.config;
 
+import com.codewithmosh.store.core.security.SecurityRules;
 import com.codewithmosh.store.feature.authentication.filter.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -22,6 +22,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.http.MediaType;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @AllArgsConstructor
 @Configuration
 @EnableWebSecurity
@@ -29,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final List<SecurityRules> featureSecurityRules;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -51,18 +54,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterRequests(HttpSecurity http) throws Exception {
         http
-                .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(c ->
+                        c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(c -> {
+                    featureSecurityRules.forEach(r -> r.configure(c));
+                    c.anyRequest().authenticated();
+                })
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests(request -> request
-                        .requestMatchers("/carts/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/auth/refresh").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/checkout/webhook").permitAll()
-                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN") // Change this line
-                        .anyRequest().authenticated()
-                )
                 .exceptionHandling(c -> {
                     c.authenticationEntryPoint((request, response, ex) -> {
                         log.error("Authentication failure", ex);

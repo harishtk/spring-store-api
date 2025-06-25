@@ -1,6 +1,6 @@
 package com.codewithmosh.store.feature.orders.entity;
 
-import com.codewithmosh.store.feature.cart.entity.Cart;
+import com.codewithmosh.store.feature.carts.entity.Cart;
 import com.codewithmosh.store.feature.users.entity.User;
 import com.codewithmosh.store.core.models.PaymentStatus;
 import jakarta.persistence.*;

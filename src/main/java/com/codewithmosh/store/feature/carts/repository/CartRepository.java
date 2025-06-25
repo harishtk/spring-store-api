@@ -1,6 +1,6 @@
-package com.codewithmosh.store.feature.cart.repository;
+package com.codewithmosh.store.feature.carts.repository;
 
-import com.codewithmosh.store.feature.cart.entity.Cart;
+import com.codewithmosh.store.feature.carts.entity.Cart;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -1,18 +1,18 @@
 package com.codewithmosh.store.feature.payments.core.service;
 
-import com.codewithmosh.store.feature.cart.entity.Cart;
+import com.codewithmosh.store.feature.carts.entity.Cart;
 import com.codewithmosh.store.feature.payments.core.dto.CheckoutResponseDto;
 import com.codewithmosh.store.feature.orders.entity.Order;
-import com.codewithmosh.store.feature.cart.exception.CartEmptyException;
-import com.codewithmosh.store.feature.cart.exception.CartNotFoundException;
+import com.codewithmosh.store.feature.carts.exception.CartEmptyException;
+import com.codewithmosh.store.feature.carts.exception.CartNotFoundException;
 import com.codewithmosh.store.feature.payments.core.model.PaymentResult;
 import com.codewithmosh.store.core.models.PaymentStatus;
 import com.codewithmosh.store.feature.payments.core.exception.PaymentException;
 import com.codewithmosh.store.feature.payments.core.model.WebHookRequest;
-import com.codewithmosh.store.feature.cart.repository.CartRepository;
+import com.codewithmosh.store.feature.carts.repository.CartRepository;
 import com.codewithmosh.store.feature.orders.repository.OrderRepository;
 import com.codewithmosh.store.feature.authentication.service.AuthService;
-import com.codewithmosh.store.feature.cart.service.CartService;
+import com.codewithmosh.store.feature.carts.service.CartService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

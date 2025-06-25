@@ -1,4 +1,4 @@
-package com.codewithmosh.store.feature.cart.dto.request;
+package com.codewithmosh.store.feature.carts.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

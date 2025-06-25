@@ -1,9 +1,9 @@
-package com.codewithmosh.store.feature.cart.mapper;
+package com.codewithmosh.store.feature.carts.mapper;
 
-import com.codewithmosh.store.feature.cart.dto.CartDto;
-import com.codewithmosh.store.feature.cart.dto.CartItemDto;
-import com.codewithmosh.store.feature.cart.entity.Cart;
-import com.codewithmosh.store.feature.cart.entity.CartItem;
+import com.codewithmosh.store.feature.carts.dto.CartDto;
+import com.codewithmosh.store.feature.carts.dto.CartItemDto;
+import com.codewithmosh.store.feature.carts.entity.Cart;
+import com.codewithmosh.store.feature.carts.entity.CartItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

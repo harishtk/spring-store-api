@@ -1,12 +1,12 @@
-package com.codewithmosh.store.feature.cart.service;
+package com.codewithmosh.store.feature.carts.service;
 
-import com.codewithmosh.store.feature.cart.dto.CartDto;
-import com.codewithmosh.store.feature.cart.dto.CartItemDto;
-import com.codewithmosh.store.feature.cart.entity.Cart;
-import com.codewithmosh.store.feature.cart.exception.CartNotFoundException;
+import com.codewithmosh.store.feature.carts.dto.CartDto;
+import com.codewithmosh.store.feature.carts.dto.CartItemDto;
+import com.codewithmosh.store.feature.carts.entity.Cart;
+import com.codewithmosh.store.feature.carts.exception.CartNotFoundException;
 import com.codewithmosh.store.feature.inventory.exception.ProductNotFoundException;
-import com.codewithmosh.store.feature.cart.mapper.CartMapper;
-import com.codewithmosh.store.feature.cart.repository.CartRepository;
+import com.codewithmosh.store.feature.carts.mapper.CartMapper;
+import com.codewithmosh.store.feature.carts.repository.CartRepository;
 import com.codewithmosh.store.feature.inventory.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

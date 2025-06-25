@@ -1,13 +1,13 @@
-package com.codewithmosh.store.feature.cart.api;
+package com.codewithmosh.store.feature.carts.api;
 
-import com.codewithmosh.store.feature.cart.dto.CartDto;
-import com.codewithmosh.store.feature.cart.dto.CartItemDto;
+import com.codewithmosh.store.feature.carts.dto.CartDto;
+import com.codewithmosh.store.feature.carts.dto.CartItemDto;
 import com.codewithmosh.store.core.dto.ErrorDto;
-import com.codewithmosh.store.feature.cart.dto.request.AddItemToCartRequest;
-import com.codewithmosh.store.feature.cart.dto.request.UpdateCartItemRequestDto;
-import com.codewithmosh.store.feature.cart.exception.CartNotFoundException;
+import com.codewithmosh.store.feature.carts.dto.request.AddItemToCartRequest;
+import com.codewithmosh.store.feature.carts.dto.request.UpdateCartItemRequestDto;
+import com.codewithmosh.store.feature.carts.exception.CartNotFoundException;
 import com.codewithmosh.store.feature.inventory.exception.ProductNotFoundException;
-import com.codewithmosh.store.feature.cart.service.CartService;
+import com.codewithmosh.store.feature.carts.service.CartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

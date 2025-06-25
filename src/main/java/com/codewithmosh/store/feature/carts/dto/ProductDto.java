@@ -1,4 +1,4 @@
-package com.codewithmosh.store.feature.cart.dto;
+package com.codewithmosh.store.feature.carts.dto;
 
 import lombok.Data;
 
