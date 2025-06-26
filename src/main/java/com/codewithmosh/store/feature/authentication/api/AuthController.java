@@ -3,7 +3,6 @@ package com.codewithmosh.store.feature.authentication.api;
 import com.codewithmosh.store.feature.authentication.config.JwtConfig;
 import com.codewithmosh.store.feature.authentication.dto.request.LoginRequestDto;
 import com.codewithmosh.store.feature.authentication.dto.response.JwtResponse;
-import com.codewithmosh.store.feature.authentication.dto.response.LoginResponseDto;
 import com.codewithmosh.store.feature.users.dto.response.UserResponseDto;
 import com.codewithmosh.store.feature.users.exception.UserNotFoundException;
 import com.codewithmosh.store.feature.users.mapper.UserMapper;
@@ -26,7 +25,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(
+    public ResponseEntity<JwtResponse> login(
             @Valid @RequestBody LoginRequestDto request
     ) {
         var loginResult = authService.login(request);
@@ -41,7 +40,7 @@ public class AuthController {
 
         return ResponseEntity.ok()
                 .header("Set-Cookie", cookie.toString())
-                .body(loginResult);
+                .body(new JwtResponse(loginResult.getAccessToken().toString()));
     }
 
     @GetMapping("/refresh")
